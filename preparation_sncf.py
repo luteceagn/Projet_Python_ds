@@ -1,36 +1,68 @@
-import pandas as pd
-import requests
-from io import BytesIO
+from chargement_sncf import charger_sncf
 
-# 1. Période d'étude
-date_debut = "2018-01-01"
-date_fin = "2026-09-30"
 
-# 2. URL de l'API SNCF
-url = "https://ressources.data.sncf.com/api/explore/v2.1/catalog/datasets/regularite-mensuelle-tgv-aqst/exports/csv"
+# 1. Identification des gares de départ et d'arrivée
 
-# 3. Paramètres de la requête
-params = {
-    "where": f"date >= '{date_debut}' AND date <= '{date_fin}'",
-    "sort": "date"
-}
+def lister_gares(df):
+    # Récupérer les gares sans doublons
+    gares = sorted(
+        set(df["gare_depart"].dropna())
+        | set(df["gare_arrivee"].dropna())
+    )
 
-# 4. Récupération des données
-response = requests.get(url, params=params, timeout=120)
-response.raise_for_status()
+    return gares
 
-# 5. Lecture des données directement en mémoire
-df_sncf = pd.read_csv(
-    BytesIO(response.content),
-    sep=";"
-)
 
-# 6. Conversion de la date
-df_sncf["date"] = pd.to_datetime(df_sncf["date"])
+# 2. Liste des destinations étrangères à exclure
 
-# 7. Vérification des données
-print("Dimensions :", df_sncf.shape)
-print("Première date :", df_sncf["date"].min())
-print("Dernière date :", df_sncf["date"].max())
+gares_etrangeres = [
+    "BARCELONA",
+    "FRANCFORT",
+    "GENEVE",
+    "ITALIE",
+    "LAUSANNE",
+    "MADRID",
+    "STUTTGART",
+    "ZURICH"
+]
 
-print(df_sncf.head())
+
+# 3. Filtrage des liaisons françaises
+
+def filtrer_liaisons_francaises(df):
+
+    # Conserver uniquement les liaisons
+    # dont le départ et l'arrivée sont en France
+    df_filtre = df[
+        (~df["gare_depart"].isin(gares_etrangeres))
+        & (~df["gare_arrivee"].isin(gares_etrangeres))
+        & (df["gare_depart"].notna())
+        & (df["gare_arrivee"].notna())
+    ].copy()
+
+    return df_filtre
+
+
+# 4. Vérification du filtrage
+
+if __name__ == "__main__":
+
+    # Charger les données SNCF
+    df_sncf = charger_sncf()
+
+    # Appliquer le filtrage
+    df_sncf_fr = filtrer_liaisons_francaises(df_sncf)
+
+    # Afficher les résultats
+    print("Nombre de lignes initial :", len(df_sncf))
+    print("Nombre de lignes restantes :", len(df_sncf_fr))
+    print("Nombre de lignes supprimées :", len(df_sncf) - len(df_sncf_fr))
+
+    print("Nombre de gares initial :", len(lister_gares(df_sncf)))
+    print("Nombre de gares après filtrage :", len(lister_gares(df_sncf_fr)))
+
+    # Vérifier les gares conservées
+    print("\nListe des gares conservées :")
+
+    for gare in lister_gares(df_sncf_fr):
+        print(gare)
