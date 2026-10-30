@@ -1,10 +1,12 @@
 from chargement_sncf import charger_sncf
+from chargement_gares import charger_gares
 
 
 # 1. Identification des gares de départ et d'arrivée
 
 def lister_gares(df):
-    # Récupérer les gares sans doublons
+
+    # Récupérer les noms des gares sans doublons
     gares = sorted(
         set(df["gare_depart"].dropna())
         | set(df["gare_arrivee"].dropna())
@@ -43,17 +45,16 @@ def filtrer_liaisons_francaises(df):
     return df_filtre
 
 
-# 4. Vérification du filtrage
+# 4. Vérifications
 
 if __name__ == "__main__":
 
-    # Charger les données SNCF
+    # Chargement des données SNCF
     df_sncf = charger_sncf()
 
-    # Appliquer le filtrage
+    # Filtrage des liaisons françaises
     df_sncf_fr = filtrer_liaisons_francaises(df_sncf)
 
-    # Afficher les résultats
     print("Nombre de lignes initial :", len(df_sncf))
     print("Nombre de lignes restantes :", len(df_sncf_fr))
     print("Nombre de lignes supprimées :", len(df_sncf) - len(df_sncf_fr))
@@ -61,8 +62,23 @@ if __name__ == "__main__":
     print("Nombre de gares initial :", len(lister_gares(df_sncf)))
     print("Nombre de gares après filtrage :", len(lister_gares(df_sncf_fr)))
 
-    # Vérifier les gares conservées
-    print("\nListe des gares conservées :")
+    # Chargement des données géographiques des gares
+    df_gares = charger_gares()
 
-    for gare in lister_gares(df_sncf_fr):
+    # Comparaison des noms dans les deux bases
+    noms_sncf = set(lister_gares(df_sncf_fr))
+    noms_geo = set(
+        df_gares["nom"].dropna().str.strip().str.upper()
+    )
+
+    # Identification des correspondances
+    gares_trouvees = noms_sncf & noms_geo
+    gares_non_trouvees = noms_sncf - noms_geo
+
+    print("\nNombre de correspondances exactes :", len(gares_trouvees))
+    print("Nombre de gares sans correspondance :", len(gares_non_trouvees))
+
+    print("\nGares sans correspondance exacte :")
+
+    for gare in sorted(gares_non_trouvees):
         print(gare)
