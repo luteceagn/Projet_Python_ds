@@ -140,5 +140,5 @@ print(df[['NUM_POSTE', 'DEP', 'NOM_DEP']].head(20))
 # ==========================================
 # Sauvegarde de la base finale
 # ==========================================
-df.to_csv('data_meteo_complet.csv', index=False)
+df.to_csv('data_meteo_complet.csv', index=False,sep=',')
 print(f'Nombre de lignes après filtrage : {len(df)}')

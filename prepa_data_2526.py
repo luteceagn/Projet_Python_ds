@@ -20,7 +20,7 @@ for f in fichiers:
   try:
     df_temp = pd.read_csv(
         f,
-        sep=';',
+        sep=',',
         encoding='utf-8',
         quotechar='"',  # Gère les textes entre guillemets contenant des points-virgules
         on_bad_lines='skip',  # Ignore définitivement les lignes corrompues
@@ -43,7 +43,7 @@ else:
 # 1. Chargement du fichier CSV supplémentaire sous forme de DataFrame
 df_supplementaire = pd.read_csv(
     'data_1950_2024.csv',
-    sep=';',
+    sep=',',
     on_bad_lines='skip',
     encoding='utf-8',
 )
@@ -56,5 +56,5 @@ print(f'Base finale mise à jour ! Total de lignes : {len(df_global)}')
 # ===============================================================
 # ÉTAPE 3 : Sauvegarde de la base finale des données de 2025-2026
 # ===============================================================
-df_global.to_csv('data_meteo.csv', index=False)
+df_global.to_csv('data_meteo.csv', index=False,sep=',')
 print(f'Nombre de lignes après filtrage : {len(df_global)}')

@@ -18,7 +18,7 @@ for f in fichiers:
   try:
     df_temp = pd.read_csv(
         f,
-        sep=';',
+        sep=',',
         encoding='utf-8',
         quotechar='"',  # Gère les textes entre guillemets contenant des points-virgules
         on_bad_lines='skip',  # Ignore définitivement les lignes corrompues
@@ -39,19 +39,17 @@ else:
 # ÉTAPE 2 : Filtrage par année (format yyyymm)
 # ==========================================
 
-colonne_date = 'AAAAMM'
-
 # Extraction de chaîne de caractères
 # Puisque l'on a beaucoup de lignes et que le format 'yyyymm' est strict,
 # on peut simplement extraire les 4 premiers caractères (l'année) :
 # On ne garde que les données des années 2018 à 2024 qui correspondent à notre base SNCF
 annee_str = ['2018','2019','2020','2021','2022','2023','2024']
-df_global['annee'] = df_global[colonne_date].astype(str).str[:4]
+df_global['annee'] = df_global['AAAAMM'].astype(str).str[:4]
 df_filtre = df_global[df_global['annee'].isin(annee_str)]
 
 
 # ==========================================
 # ÉTAPE 3 : Sauvegarde de la base finale
 # ==========================================
-df_filtre.to_csv('data_1950_2024.csv', index=False)
+df_filtre.to_csv('data_1950_2024.csv', index=False,sep=',')
 print(f'Nombre de lignes après filtrage : {len(df_filtre)}')
