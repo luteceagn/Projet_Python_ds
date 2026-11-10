@@ -1,17 +1,12 @@
 import pandas as pd
 
 df = pd.read_csv(
-    "data_meteo.csv", sep=',', on_bad_lines='skip', encoding='utf-8'
+    "meteo_mensuelle_2018_2026.csv", sep=';', encoding='utf-8'
 )
 
-# Nettoie les espaces ou guillemets invisibles éventuels autour des noms de colonnes
-df.columns = df.columns.str.strip().str.replace('"', '')
-
-# Vérification : affiche la vraie liste de toutes les colonnes séparées
-print('Colonnes chargées avec succès :', df.columns.tolist())
 # 2. Extraction intelligente du département (2 ou 3 caractères)
 # On convertit la colonne en texte
-num_str = df['NUM_POSTE'].astype(str)
+num_str = df['POSTE'].astype(str)
 
 # Par défaut, on prend les 2 premiers caractères
 df['DEP'] = num_str.str[:2]
@@ -42,8 +37,7 @@ correspondance = {
     '17': 'Charente-Maritime',
     '18': 'Cher',
     '19': 'Corrèze',
-    '2A': 'Corse-du-Sud',
-    '2B': 'Haute-Corse',
+    '20': 'Corse',
     '21': "Côte-d'Or",
     '22': "Côtes-d'Armor",
     '23': 'Creuse',
@@ -135,10 +129,10 @@ correspondance = {
 df['NOM_DEP'] = df['DEP'].map(correspondance).fillna('Non répertorié')
 
 # Aperçu du résultat
-print(df[['NUM_POSTE', 'DEP', 'NOM_DEP']].head(20))
+print(df[['POSTE', 'DEP', 'NOM_DEP']].head(20))
 
 # ==========================================
 # Sauvegarde de la base finale
 # ==========================================
-df.to_csv('data_meteo_complet.csv', index=False,sep=',')
+df.to_csv('data_meteo_enrichie.csv', index=False,sep=';')
 print(f'Nombre de lignes après filtrage : {len(df)}')
