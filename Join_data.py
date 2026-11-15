@@ -6,7 +6,26 @@ df_sncf = pd.read_csv("df_sncf_prepare.csv")
 df_meteo = pd.read_csv("data_meteo_enrichie.csv", sep=";")
 
 # 2. Trie de variables et créations des nouvelles
-#   a. Calcul des anomalies
+#   a. On ne garde que les observations qualitatives (inférieure à 2)
+# Prise en compte de la qualité (si la qualité est >= 2, on met la valeur à NaN)
+# Mettre la valeur à NaN ne gènera pas Pandas plus tard et permet de garder des données de qualité pour l'aggrégation
+# Pour les précipitations
+if 'QRR' in df_meteo.columns:
+    df_meteo.loc[df_meteo['QRR']=='2.0', 'RR'] = np.nan
+
+# Pour la température minimale
+if 'QTN' in df_meteo.columns:
+    df_meteo.loc[df_meteo['QTN']=='2.0', 'TN'] = np.nan
+
+# Pour la température maximale
+if 'QTX' in df_meteo.columns:
+    df_meteo.loc[df_meteo['QTX']=='2.0', 'TX'] = np.nan
+
+# Pour l'amplitude thermique
+if 'QTAMPLIM' in df_meteo.columns:
+    df_meteo.loc[df_meteo['QTAMPLIM']=='2.0', 'TAMPLIM'] = np.nan
+
+#   b. Calcul des anomalies
 # Pour la pluie : pourcentage d'écart par rapport à la normale (en gérant les cas où RR_ME vaut 0)
 df_meteo['anomalie_rr_pct'] = np.where(
     df_meteo['RR_ME'] > 0,
@@ -18,7 +37,7 @@ df_meteo['anomalie_rr_pct'] = np.where(
 df_meteo['anomalie_tn'] = df_meteo['TN'] - df_meteo['TN_ME']
 df_meteo['anomalie_tx'] = df_meteo['TX'] - df_meteo['TX_ME']
 
-#   b. Sélection des variables à conserver (clés de jointure + variables cibles)
+#   c. Sélection des variables à conserver (clés de jointure + variables cibles)
 variables_utiles = [
     'departement',
     'DATE',
