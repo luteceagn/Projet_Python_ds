@@ -1,0 +1,74 @@
+1) Récupération des données
+Notre projet est centré sur 2 bases de données principales :
+- une base de données en Open Data de la SNCF
+- une base de données en Open Data de Météo France
+a. Récupération des données SNCF
+...
+
+b. Récupération des données Météo France
+
+Pour les données climatologiques un choix a du être fait entre des données journalières
+ou mensuelles. Nous avons décidé de récupérer les données mensuelles. Dans un premier
+temps pour un soucis pratique de taille de la données et de temps de récupération via l'API.
+Et dans un second temps pour un soucis méthodologique. En effet, la météo du jour n'est
+pas la seule information pouvant impactée les retards des trains, un évènement ayant eu
+lieu dans les jours précédents peu avoir des effets sur les jours suivants. Ce qui rend
+pertinent d'avoir des données aggrégées au niveau mensuel.
+Afin d'automatiser la récupération des données, nous avons choisi de récupérer les
+données via des requêtes à l'API de météo France.
+Afin de cibler les données souhaitées il fallait dans un premier temps récupérer les
+identifiants des stations puis récupérer les informations de chaque station car une
+grande partie n'était pas ouvertes durant notre période d'intérêt (2018-2026) ou que
+partiellement.
+Il fallait alors récupérer la période d'ouverture des stations pour décider des années
+de données à récupérer.
+Une fois ces informations récupérer une dernière requêtes pour récupérer les données
+climatologiques mensuelles par stations sur la période disponible est réalisée.
+
+2) Choix des variables
+Pour expliquer des retards ou des annulations de trains, nous avons ciblé les variables
+météo qui impactent directement l'infrastructure ferroviaire
+(rails, caténaires, signalisation).
+En faisant la moyenne par département, les indicateurs les plus pertinents à retenir
+se répartissent en quatre grands axes :
+
+1. Le gel et la neige (Perturbations hivernales)
+Le froid perturbe l'alimentation électrique (givre sur les caténaires) et bloque les aiguillages.
+- NBJGELEE : Nombre de jours de gel (essentiel pour voir l'impact du froid matinal).
+- NBJSOLNG : Nombre de jours avec sol enneigé.
+- TN : Moyenne mensuelle des températures minimales quotidiennes.
+
+2. Les fortes précipitations, brouillard et orages (Risques d'inondation et de visibilité)
+L'eau en excès provoque des affaissements de voies, des glissements de terrain
+ou des limitations de vitesse par précaution.
+- RR : Cumul mensuel des précipitations (en mm).
+- NBJRR10 : Nombre de jours de fortes pluies.
+- NBJORAG : Nombre de jours d'orage (souvent liés aux coupures de courant et pannes de signalisation).
+- NBJBROU : Nombre de jours de brouillard dans le mois
+
+3. Le vent violent (Chutes d'arbres et caténaires)
+Le vent fort est l'une des causes majeures d'incidents externes sur le réseau SNCF.
+- NBJFF16 : Nombre de jours avec des vents forts.
+
+4. La chaleur extrême (Dilatation thermique)
+En cas de canicule, les rails se dilatent, ce qui oblige la SNCF à imposer des
+ralentissements de sécurité (LTV - Limitations Temporaires de Vitesse).
+- TX : Moyenne mensuelle des températures maximales quotidiennes.
+- NBJTX30 : Nombre de jours de forte chaleur. (Température >= 30 degrés)
+- TAMPLIM : Amplitude thermique moyenne du mois
+
+3) Jointure
+Pour la jointure, un left join a été choisi pour compléter les informations des trains
+à l'aide de celles de météo France.
+Dans un premier temps au lieu de séléctionner une station par département, pour avoir
+un résultat plus robuste nous avons choisi de faire la moyenne des données disponibles
+par station par mois. Ce qui permet de passer outre les problèmes de valeurs manquantes
+et d'avoir une meilleure idée du climat général du département.
+De plus, Afin d'avoir une meilleure idée des intempéries ayant pu géner l'avancée
+du train nous avons récupéré les départements d'arrivée et de départ des trains afin de
+joindre à chaque train les données météorologiques au départ et à l'arrivée.
+Parmi les variables nous avons des variables de comptage de certains phénomènes
+extrêmes pouvant entraver le bon fonctionnement du service de la SNCF. Pour passer
+outre le biais de durée des mois pour de potentielles régression nous avons décidé de
+transformer ces variables en pourcentage d'occurence du phénomène en jours par mois en
+récupérant le nombre de jours de chacun des mois.

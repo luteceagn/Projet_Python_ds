@@ -18,14 +18,14 @@ if not API_KEY:
 HEADERS = {"apikey": API_KEY}  # pas de accept: json, le fichier est un CSV
 BASE = "https://public-api.meteofrance.fr/public/DPClim/v1"
 
-# Métropole + DROM. Pour la Corse, teste 20 puis 2 (voir le test plus haut).
+# Métropole + DROM.
 DEPARTEMENTS = list(range(1, 96)) + [971, 972, 973, 974, 975, 984, 985, 986, 987, 988]
 
 ANNEE_DEBUT = 2018
 DEBUT_PERIODE = date(ANNEE_DEBUT, 1, 1)
 OUTPUT_FILE = "meteo_mensuelle_2018_2026.csv"
 
-CACHE_DIR = Path("cache_meteo")   # un CSV p ar station (permet de reprendre)
+CACHE_DIR = Path("cache_meteo")   # un CSV par station (permet de reprendre)
 INFO_DIR = Path("cache_info")     # un JSON d'historique par station
 CACHE_DIR.mkdir(exist_ok=True)
 INFO_DIR.mkdir(exist_ok=True)

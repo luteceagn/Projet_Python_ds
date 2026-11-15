@@ -2,7 +2,6 @@
 import re
 import unicodedata
 import pandas as pd
-
 from chargement_sncf import charger_sncf
 from chargement_gares import charger_gares
 
@@ -278,3 +277,5 @@ if __name__ == "__main__":
          "dep_depart", "dep_arrivee"]
     ].head(10))
 
+df_sncf = preparer_sncf()
+df_sncf.to_csv("df_sncf_prepare.csv", index=False, encoding="utf-8")
