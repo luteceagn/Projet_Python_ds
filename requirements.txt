@@ -1,4 +1,4 @@
 pandas
-glob
-datetime
-pathlib
+numpy
+requests
+python-dotenv
