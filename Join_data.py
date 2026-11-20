@@ -11,19 +11,19 @@ df_meteo = pd.read_csv("data_meteo_enrichie.csv", sep=";")
 # Mettre la valeur à NaN ne gènera pas Pandas plus tard et permet de garder des données de qualité pour l'aggrégation
 # Pour les précipitations
 if 'QRR' in df_meteo.columns:
-    df_meteo.loc[df_meteo['QRR']=='2.0', 'RR'] = np.nan
+    df_meteo.loc[pd.to_numeric(df_meteo['QRR'], errors='coerce') == 2, 'RR'] = np.nan
 
 # Pour la température minimale
 if 'QTN' in df_meteo.columns:
-    df_meteo.loc[df_meteo['QTN']=='2.0', 'TN'] = np.nan
+    df_meteo.loc[pd.to_numeric(df_meteo['QTN'], errors='coerce') == 2, 'TN'] = np.nan
 
 # Pour la température maximale
 if 'QTX' in df_meteo.columns:
-    df_meteo.loc[df_meteo['QTX']=='2.0', 'TX'] = np.nan
+    df_meteo.loc[pd.to_numeric(df_meteo['QTX'], errors='coerce') == 2, 'TX'] = np.nan
 
 # Pour l'amplitude thermique
 if 'QTAMPLIM' in df_meteo.columns:
-    df_meteo.loc[df_meteo['QTAMPLIM']=='2.0', 'TAMPLIM'] = np.nan
+    df_meteo.loc[pd.to_numeric(df_meteo['QTAMPLIM'], errors='coerce') == 2, 'TAMPLIM'] = np.nan
 
 #   b. Calcul des anomalies
 # Pour la pluie : pourcentage d'écart par rapport à la normale (en gérant les cas où RR_ME vaut 0)
@@ -108,7 +108,8 @@ df_merged = pd.merge(
     meteo_depart,
     left_on=['dep_depart', 'annee_mois'],
     right_on=['departement_depart', 'DATE_depart'],
-    how='left'
+    how='left',
+    validate='many_to_one'
 )
 
 # 6. Seconde jointure : Météo du département d'ARRIVÉE
@@ -119,7 +120,8 @@ df_final = pd.merge(
     meteo_arrivee,
     left_on=['dep_arrivee', 'annee_mois'],
     right_on=['departement_arrivee', 'DATE_arrivee'],
-    how='left'
+    how='left',
+    validate='many_to_one'
 )
 
 # 7. Nettoyage des colonnes de jointure en double si besoin
