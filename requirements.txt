@@ -3,3 +3,6 @@ numpy
 requests
 python-dotenv
 matplotlib
+datetime
+pathlib
+seaborn
