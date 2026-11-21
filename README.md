@@ -1,4 +1,41 @@
-# Projet_Python_ds
+
+# Analyse de la régularité des TGV et des conditions météorologiques
+
+Projet réalisé dans le cadre du cours de Python pour la Data Science à l'ENSAE Paris.
+
+## Présentation du projet
+
+Ce projet vise à étudier les liens entre les conditions météorologiques et les retards des TGV en France, entre janvier 2018 et septembre 2026.
+
+Nous utilisons deux sources de données :
+- **SNCF Open Data** : données mensuelles sur les retards, les annulations et la circulation des TGV.
+- **Météo-France** : données météorologiques mensuelles récupérées via une API.
+
+L'objectif de ce projet est d'analyser la régularité des TGV en France, puis d'étudier les liens possibles entre les conditions météorologiques et les retards ferroviaires à partir des données de la SNCF et de Météo-France.
+
+
+## Installation et exécution du projet
+
+Pour reproduire les analyses, commencer par cloner le dépôt GitHub, puis ouvrir un terminal à la racine du projet.
+
+### 1. Installation des dépendances
+
+Installer les bibliothèques Python nécessaires :
+
+```bash
+pip install -r requirements.txt
+```
+
+
+### 2. Exécution du notebook
+
+Ouvrir le fichier `rapport_final.ipynb` dans Jupyter ou VS Code, puis exécuter les cellules dans l'ordre.
+
+Le notebook utilise les fonctions définies dans les fichiers Python du projet pour récupérer et préparer automatiquement les données.
+
+Les données SNCF, comprenant la régularité des TGV et les informations géographiques des gares, sont récupérées directement depuis les API SNCF, sans téléchargement manuel.
+
+Les traitements et les analyses sont ensuite réalisés dans le notebook.
 
 ## 🔑 Configuration de l'API Météo-France
 
@@ -14,4 +51,38 @@ Pour exécuter le script d'extraction des données climatologiques, vous devez c
 
 Ajoutez-y la ligne suivante en remplaçant la valeur par votre propre clé :
 ```env
-METEO_FRANCE_API_KEY=votre_cle_api_ici```
+METEO_FRANCE_API_KEY=votre_cle_api_ici
+```
+
+
+## Démarche et préparation des données
+
+### Données SNCF
+
+Les données de régularité des TGV sont récupérées automatiquement depuis l'API SNCF à l'aide de la bibliothèque `requests`, puis chargées dans un DataFrame `pandas`. La période retenue s'étend de janvier 2018 à septembre 2026.
+
+Nous commençons par explorer la base, notamment les gares présentes et les valeurs manquantes. Pour conserver un périmètre géographique cohérent avec les données météorologiques françaises, nous excluons les liaisons dont la gare de départ ou d'arrivée se situe à l'étranger.
+
+Cette étape permet de passer de 12 907 à 11 357 observations.
+
+### Identification des départements
+
+La base de régularité SNCF ne contient pas directement les départements des gares. Or, cette information est nécessaire pour rapprocher les données ferroviaires et météorologiques.
+
+Nous récupérons donc un second jeu de données depuis l'API SNCF, contenant les noms des gares et leurs codes INSEE.
+
+Les appellations étant parfois différentes entre les deux bases, nous procédons à une normalisation des noms (accents, ponctuation et abréviations), puis utilisons des correspondances spécifiques pour les cas qui ne peuvent pas être rapprochés automatiquement.
+
+Pour trois cas particuliers, nous attribuons directement le département sans supposer une correspondance avec une gare précise.
+
+Cette méthode permet d'identifier les départements des 51 gares françaises et d'ajouter deux colonnes à notre base : `dep_depart` et `dep_arrivee`, sans perdre d'observations.
+
+### Analyse de la régularité des TGV
+
+Nous construisons ensuite des indicateurs de régularité, notamment le taux de retard à l'arrivée, calculé à partir du nombre de trains en retard et du nombre de circulations effectives.
+
+Les observations pour lesquelles ce taux ne peut pas être calculé sont écartées de son calcul, sans être supprimées de la base initiale.
+
+Nous réalisons enfin une analyse descriptive et des visualisations pour étudier la régularité des TGV avant d'examiner ses liens possibles avec les conditions météorologiques.
+
+
