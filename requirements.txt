@@ -6,5 +6,4 @@ matplotlib
 datetime
 pathlib
 seaborn
-geopandas
-s3fs
+scipy
