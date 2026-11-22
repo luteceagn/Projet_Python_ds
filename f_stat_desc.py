@@ -281,7 +281,7 @@ def tracer_saisonnalite_meteo(
             "jours de gel",
             "Gel ",
             "Part des jours du mois (%)",
-            "#377eb8",
+            "#d46216",
         ),
         "NBJTX30": (
             "forte chaleur > 30°C",
