@@ -85,4 +85,36 @@ Les observations pour lesquelles ce taux ne peut pas être calculé sont écart�
 
 Nous réalisons enfin une analyse descriptive et des visualisations pour étudier la régularité des TGV avant d'examiner ses liens possibles avec les conditions météorologiques.
 
+## Présentation des variables
+### Variables Climatologiques
+Pour expliquer des retards ou des annulations de trains, nous avons ciblé les variables
+météo qui impactent directement l'infrastructure ferroviaire (rails, caténaires, signalisation).
 
+En faisant la moyenne mensuelle par département, les indicateurs les plus pertinents à retenir
+se répartissent en quatre grands axes :
+
+1. Le gel et la neige (Perturbations hivernales) :
+Le froid perturbe l'alimentation électrique (givre sur les caténaires) et bloque les aiguillages.
+- NBJGELEE : Nombre de jours de gel (essentiel pour voir l'impact du froid matinal).
+- NBJSOLNG : Nombre de jours avec sol enneigé. (supprimé à cause d'un trop grand % de NA)
+- TN : Moyenne mensuelle des températures minimales quotidiennes.
+
+2. Les fortes précipitations, brouillard et orages (Risques d'inondation et de visibilité)
+L'eau en excès provoque des affaissements de voies, des glissements de terrain
+ou des limitations de vitesse par précaution.
+- RR : Cumul mensuel des précipitations (en mm).
+- NBJRR10 : Nombre de jours de fortes pluies (>=10mm).
+- NBJORAG : Nombre de jours d'orage (souvent liés aux coupures de courant et pannes de signalisation).
+- NBJBROU : Nombre de jours de brouillard dans le mois
+
+3. Le vent violent (Chutes d'arbres et caténaires)
+Le vent fort est l'une des causes majeures d'incidents externes sur le réseau SNCF.
+- NBJFF16 : Nombre de jours avec des vents forts.
+
+4. La chaleur extrême (Dilatation thermique)
+En cas de canicule, les rails se dilatent, ce qui oblige la SNCF à imposer des
+ralentissements de sécurité (LTV - Limitations Temporaires de Vitesse).
+- TX : Moyenne mensuelle des températures maximales quotidiennes.
+- NBJTX30 : Nombre de jours de forte chaleur. (Température >= 30 degrés)
+- TAMPLIM : Amplitude thermique moyenne du mois
+*Remarque*: Chaque variable de comptage (NB..) a été transformé en % de jours du mois affecté par le phénomène
