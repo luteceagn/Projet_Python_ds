@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
@@ -138,45 +137,13 @@ def redondances_meteo(df_valides):
     return pd.DataFrame(resultats).round(6)
 
 
-def tracer_heatmap_cibles(matrice, output_path=None):
-    """Visualise les cibles SNCF en corrélation avec les variables météo."""
-    cible = matrice.loc[
-        ["taux_retard_arrivee", "taux_annulation"]
-    ]
-    fig, ax = plt.subplots(figsize=(16, 4))
-    image = ax.imshow(cible, aspect="auto", cmap="coolwarm", vmin=-1, vmax=1)
-    ax.set_xticks(range(len(cible.columns)))
-    ax.set_xticklabels(cible.columns, rotation=70, ha="right")
-    ax.set_yticks(range(len(cible.index)))
-    ax.set_yticklabels(cible.index)
-
-    for i in range(cible.shape[0]):
-        for j in range(cible.shape[1]):
-            ax.text(j, i, f"{cible.iloc[i, j]:.2f}",
-                    ha="center", va="center")
-
-    fig.colorbar(image, ax=ax, label="Corrélation Pearson")
-    plt.tight_layout()
-    if output_path:
-        plt.savefig(output_path, dpi=150, bbox_inches="tight")
-    return fig
-
-
 def generer_tests_correlation(input_path="df_sncf_avec_meteo.csv",
-                              output_dir="sorties_correlation_jointure"):
+                              output_dir=None):
     """API unique appelée par le notebook."""
     df, df_valides = charger_base(input_path)
     tests = tester_correlations(df_valides)
     covariance, correlation = calculer_matrices(df_valides)
     redondances = redondances_meteo(df_valides)
-
-    if output_dir:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        tracer_heatmap_cibles(
-            correlation,
-            output_dir / "correlations_sncf_meteo_heatmap.png",
-        )
 
     return {
         "data": df,

@@ -7,3 +7,6 @@ datetime
 pathlib
 seaborn
 scipy
+geopandas
+s3fs
+ipykernel
