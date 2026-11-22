@@ -86,6 +86,8 @@ Les observations pour lesquelles ce taux ne peut pas être calculé sont écart�
 Nous réalisons enfin une analyse descriptive et des visualisations pour étudier la régularité des TGV avant d'examiner ses liens possibles avec les conditions météorologiques.
 
 ## Présentation des variables
+### Variables du traffic de la SNCF
+[...] à compléter
 ### Variables Climatologiques
 Pour expliquer des retards ou des annulations de trains, nous avons ciblé les variables
 météo qui impactent directement l'infrastructure ferroviaire (rails, caténaires, signalisation).
