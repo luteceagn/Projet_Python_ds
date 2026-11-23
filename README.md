@@ -6,7 +6,6 @@ Projet réalisé dans le cadre du cours de Python pour la Data Science à l'ENSA
 
 Ce projet vise à étudier les liens entre les conditions météorologiques et les retards des TGV en France, entre janvier 2018 et septembre 2026.
 
-
 Nous utilisons deux sources de données :
 
 - **SNCF Open Data** : données mensuelles sur les retards, les annulations et les circulations des TGV, récupérées automatiquement depuis l'API SNCF.
@@ -15,7 +14,23 @@ Nous utilisons deux sources de données :
 L'objectif de ce projet est d'analyser la régularité des TGV en France, puis d'étudier les liens possibles entre les conditions météorologiques et les retards ferroviaires à partir des données de la SNCF et de Météo-France.
 
 ## 2- Contenu du dépôt
-[à compléter]
+Le dépot contient le notebook central du projet : rapport_final.ipynb.
+Dans ce notebook, dans le but de ne pas laisser de trop longs morceaux de code, nous faisons appel à plusieurs fonctions avec différentes utilités (chargement de données, création de graphique, lancement de tests de corrélation).
+
+Ces fonctions sont répertoriées dans les fichiers .py suivants dans l'ordre de leur utilisation dans le rapport final :
+
+- chargement_sncf.py
+- chargement_gares.py
+- preparation_sncf
+- collecte_meteo.py
+- f_stat_desc.py
+- stat_desc_jointe.py
+- tests_correlation_jointure.py
+
+Le dépôt contient aussi le fichier requirements.txt qui recense l'ensemble des modules à installer pour être capable de lancer l'intégralité du projet. Enfin, le dépôt contient un .gitignore pour empêcher certains types de dossiers d'être envoyé sur le dépôt distant.
+
+Une fois le projet lancé, votre dépôt local contiendra en plus un .env avec la clé d'identification pour l'API Météo-France.
+Et plusieurs fichiers de données en format CSV (data_meteo_enrichie.csv, df_sncf_avec_meteo.csv et df_sncf_prepare.csv)
 
 ## 3- Comment lancer le projet
 
