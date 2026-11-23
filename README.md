@@ -1,24 +1,27 @@
-
 # Analyse de la régularité des TGV et des conditions météorologiques
 
 Projet réalisé dans le cadre du cours de Python pour la Data Science à l'ENSAE Paris.
 
-## Présentation du projet
+## 1- Présentation du projet
 
 Ce projet vise à étudier les liens entre les conditions météorologiques et les retards des TGV en France, entre janvier 2018 et septembre 2026.
 
+
 Nous utilisons deux sources de données :
-- **SNCF Open Data** : données mensuelles sur les retards, les annulations et la circulation des TGV.
-- **Météo-France** : données météorologiques mensuelles récupérées via une API.
+
+- **SNCF Open Data** : données mensuelles sur les retards, les annulations et les circulations des TGV, récupérées automatiquement depuis l'API SNCF.
+- **Météo-France** : données météorologiques collectées initialement via l'API Météo-France, puis stockées sur S3 afin d'éviter de relancer une collecte particulièrement longue à chaque exécution du notebook.
 
 L'objectif de ce projet est d'analyser la régularité des TGV en France, puis d'étudier les liens possibles entre les conditions météorologiques et les retards ferroviaires à partir des données de la SNCF et de Météo-France.
 
+## 2- Contenu du dépôt
+[à compléter]
 
-## Installation et exécution du projet
+## 3- Comment lancer le projet
 
 Pour reproduire les analyses, commencer par cloner le dépôt GitHub, puis ouvrir un terminal à la racine du projet.
 
-### 1. Installation des dépendances
+### 3.1- Installation des dépendances
 
 Installer les bibliothèques Python nécessaires :
 
@@ -26,18 +29,32 @@ Installer les bibliothèques Python nécessaires :
 pip install -r requirements.txt
 ```
 
+### 3.2- Exécution du notebook
 
-### 2. Exécution du notebook
+Ouvrir le fichier `rapport_final.ipynb` dans Jupyter ou VS Code, de préférence depuis l'environnement Onyxia, puis exécuter les cellules dans l'ordre.
 
-Ouvrir le fichier `rapport_final.ipynb` dans Jupyter ou VS Code, puis exécuter les cellules dans l'ordre.
+## 4- Données
 
-Le notebook utilise les fonctions définies dans les fichiers Python du projet pour récupérer et préparer automatiquement les données.
+### 4.1- Récupération des données
 
-Les données SNCF, comprenant la régularité des TGV et les informations géographiques des gares, sont récupérées directement depuis les API SNCF, sans téléchargement manuel.
+#### Données SNCF
 
-Les traitements et les analyses sont ensuite réalisés dans le notebook.
+Les données de régularité des TGV ainsi que les informations géographiques des gares sont récupérées automatiquement depuis les sources SNCF Open Data.
 
-## 🔑 Configuration de l'API Météo-France
+La collecte est réalisée directement en Python à l'aide de la bibliothèque requests. Aucun téléchargement manuel des fichiers CSV n'est nécessaire.
+
+#### Données Météo-France
+
+Les données météorologiques ont été initialement récupérées depuis l'API Météo-France à l'aide du script collecte_meteo.py.
+
+Cette collecte étant particulièrement longue, les données récupérées ont été stockées sur S3 afin d'éviter de relancer l'ensemble des requêtes à chaque exécution.
+
+Le notebook charge donc directement le fichier meteo_mensuelle_2018_2026.csv depuis S3 à l'aide de la bibliothèque s3fs.
+
+La clé API Météo-France n'est pas nécessaire pour exécuter le notebook avec les données déjà stockées sur S3. Elle est uniquement nécessaire pour relancer la collecte initiale.
+
+
+#### 🔑 Configuration de l'API Météo-France
 
 Pour exécuter le script d'extraction des données climatologiques, vous devez configurer votre clé d'accès personnelle.
 
@@ -55,40 +72,52 @@ METEO_FRANCE_API_KEY=votre_cle_api_ici
 ```
 
 
-## Démarche et préparation des données
+### 4.2- Présentation des variables
+#### Variables du traffic de la SNCF
+Les données SNCF renseignent la régularité des TGV à l'échelle mensuelle. Chaque observation correspond à une liaison orientée (gare de départ → gare d'arrivée) pour un mois donné.
 
-### Données SNCF
+Les principales variables utilisées dans notre analyse sont regroupées en quatre catégories.
 
-Les données de régularité des TGV sont récupérées automatiquement depuis l'API SNCF à l'aide de la bibliothèque `requests`, puis chargées dans un DataFrame `pandas`. La période retenue s'étend de janvier 2018 à septembre 2026.
+**1. Identification des liaisons**
 
-Nous commençons par explorer la base, notamment les gares présentes et les valeurs manquantes. Pour conserver un périmètre géographique cohérent avec les données météorologiques françaises, nous excluons les liaisons dont la gare de départ ou d'arrivée se situe à l'étranger.
+- `date` : mois et année de l'observation.
+- `gare_depart` et `gare_arrivee` : gares de départ et d'arrivée de la liaison.
+- `service` : catégorie du service ferroviaire (National ou International).
+- `duree_moyenne` : durée moyenne du trajet, en minutes.
 
-Cette étape permet de passer de 12 907 à 11 357 observations.
+Les liaisons dont une gare se situe à l'étranger sont exclues. En revanche, les liaisons classées « International » sont conservées lorsque les deux gares sont situées en France.
 
-### Identification des départements
+**2. Circulations et annulations**
 
-La base de régularité SNCF ne contient pas directement les départements des gares. Or, cette information est nécessaire pour rapprocher les données ferroviaires et météorologiques.
+- `nb_train_prevu` : nombre de trains prévus sur la liaison pendant le mois.
+- `nb_annulation` : nombre de trains annulés.
+- `circulations_effectives` : nombre de trains prévus diminué du nombre d'annulations. Cette variable est calculée dans le projet.
 
-Nous récupérons donc un second jeu de données depuis l'API SNCF, contenant les noms des gares et leurs codes INSEE.
+**3. Retards des TGV**
 
-Les appellations étant parfois différentes entre les deux bases, nous procédons à une normalisation des noms (accents, ponctuation et abréviations), puis utilisons des correspondances spécifiques pour les cas qui ne peuvent pas être rapprochés automatiquement.
+- `nb_train_retard_arrivee` : nombre de trains considérés en retard à l'arrivée selon les critères de régularité de la SNCF.
+- `nb_train_depart_retard` : nombre de trains en retard au départ.
+- `retard_moyen_depart` et `retard_moyen_arrivee` : indicateurs de retard moyen, exprimés en minutes.
+- `nb_train_retard_sup_15`, `nb_train_retard_sup_30` et `nb_train_retard_sup_60` : nombres de trains dont le retard dépasse respectivement 15, 30 et 60 minutes.
 
-Pour trois cas particuliers, nous attribuons directement le département sans supposer une correspondance avec une gare précise.
+Nous construisons également le `taux_retard_arrivee`, obtenu en rapportant le nombre de trains en retard à l'arrivée au nombre de circulations effectives, pour les observations où ce dernier est strictement positif.
 
-Cette méthode permet d'identifier les départements des 51 gares françaises et d'ajouter deux colonnes à notre base : `dep_depart` et `dep_arrivee`, sans perdre d'observations.
+**4. Causes des retards**
 
-### Analyse de la régularité des TGV
+La SNCF fournit six variables représentant la répartition des causes de retard :
 
-Nous construisons ensuite des indicateurs de régularité, notamment le taux de retard à l'arrivée, calculé à partir du nombre de trains en retard et du nombre de circulations effectives.
+- `prct_cause_externe` : causes externes, pouvant notamment inclure des événements météorologiques.
+- `prct_cause_infra` : problèmes liés aux infrastructures.
+- `prct_cause_gestion_trafic` : difficultés de gestion du trafic ferroviaire.
+- `prct_cause_materiel_roulant` : problèmes liés au matériel roulant.
+- `prct_cause_gestion_gare` : difficultés de gestion en gare.
+- `prct_cause_prise_en_charge_voyageurs` : problèmes liés à la prise en charge des voyageurs.
 
-Les observations pour lesquelles ce taux ne peut pas être calculé sont écartées de son calcul, sans être supprimées de la base initiale.
+Ces variables sont exprimées en pourcentage et permettent de décrire la répartition des causes de retard déclarées par la SNCF. La catégorie des causes externes ne permet toutefois pas d'isoler les seuls événements météorologiques.
 
-Nous réalisons enfin une analyse descriptive et des visualisations pour étudier la régularité des TGV avant d'examiner ses liens possibles avec les conditions météorologiques.
+Enfin, les variables `dep_depart` et `dep_arrivee` sont ajoutées lors de la préparation des données afin d'associer à chaque liaison les conditions météorologiques de ses départements de départ et d'arrivée.
 
-## Présentation des variables
-### Variables du traffic de la SNCF
-[...] à compléter
-### Variables Climatologiques
+#### Variables Climatologiques
 Pour expliquer des retards ou des annulations de trains, nous avons ciblé les variables
 météo qui impactent directement l'infrastructure ferroviaire (rails, caténaires, signalisation).
 
@@ -120,3 +149,41 @@ ralentissements de sécurité (LTV - Limitations Temporaires de Vitesse).
 - NBJTX30 : Nombre de jours de forte chaleur. (Température >= 30 degrés)
 - TAMPLIM : Amplitude thermique moyenne du mois
 *Remarque*: Chaque variable de comptage (NB..) a été transformé en % de jours du mois affecté par le phénomène
+
+
+## 5- Préparation des données et analyses
+
+### 5.1- Préparation des données SNCF
+
+Nous commençons par explorer les données SNCF, notamment les gares présentes, les valeurs manquantes et la cohérence des circulations.
+
+Afin de conserver un périmètre géographique cohérent avec les données météorologiques françaises, nous excluons les liaisons dont la gare de départ ou d'arrivée se situe à l'étranger. Ce filtrage permet de passer de **12 907 à 11 357 observations**.
+
+Les départements des gares sont ensuite identifiés à partir des informations géographiques fournies par la SNCF. Une normalisation des noms et des correspondances spécifiques permettent de rapprocher les différentes appellations des gares.
+
+Enfin, nous construisons les indicateurs nécessaires à l'analyse de la régularité, notamment le nombre de circulations effectives et le taux de retard à l'arrivée.
+
+### 5.2- Préparation des données météorologiques
+
+Les données météorologiques sont nettoyées et agrégées à une échelle mensuelle et départementale afin de les rendre compatibles avec les données SNCF.
+
+Nous construisons également des indicateurs permettant de caractériser les conditions météorologiques observées, notamment les températures, les précipitations et les phénomènes extrêmes.
+
+### 5.3- Jointure des données SNCF et Météo-France
+
+Les deux bases sont rapprochées à partir du mois d'observation et des départements associés aux gares.
+
+Les informations météorologiques sont intégrées séparément pour les départements de départ et d'arrivée de chaque liaison.
+
+### 5.4- Analyses réalisées
+
+Notre étude comprend plusieurs étapes :
+
+- Une analyse descriptive de la régularité des TGV et de son évolution temporelle.
+- Une étude des retards, des annulations et de leurs causes déclarées.
+- Une exploration des conditions météorologiques.
+- Une analyse des indicateurs de régularité selon les conditions météorologiques observées.
+- Des analyses de corrélation de Pearson et de Spearman afin d'étudier les associations statistiques entre les variables ferroviaires et météorologiques.
+
+## 6- Principaux résultats
+[à compléter]
