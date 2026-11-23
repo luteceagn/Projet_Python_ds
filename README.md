@@ -29,8 +29,8 @@ Ces fonctions sont répertoriées dans les fichiers .py suivants dans l'ordre de
 
 Le dépôt contient aussi le fichier requirements.txt qui recense l'ensemble des modules à installer pour être capable de lancer l'intégralité du projet. Enfin, le dépôt contient un .gitignore pour empêcher certains types de dossiers d'être envoyé sur le dépôt distant.
 
-Une fois le projet lancé, votre dépôt local contiendra en plus un .env avec la clé d'identification pour l'API Météo-France.
-Et plusieurs fichiers de données en format CSV (data_meteo_enrichie.csv, df_sncf_avec_meteo.csv et df_sncf_prepare.csv)
+Une fois le projet lancé, votre dépôt local contiendra en plus un .env avec la clé d'identification pour l'API Météo-France ainsi
+qu'un fichier contenant notre base de données jointe en format CSV (df_sncf_avec_meteo.csv)
 
 ## 3- Comment lancer le projet
 
