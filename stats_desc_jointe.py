@@ -4,7 +4,8 @@ Le module est appelé par le rapport via ``generer_stats_jointe`` et fournit :
 - la couverture de la jointure (5.2.1.1) ;
 - les liaisons au plus fort pourcentage de retard (5.2.2) ;
 - la comparaison des variables météo entre départ et arrivée (5.2.3) ;
-- les pourcentages de retard et d'annulation par tiers météo (5.2.4).
+- les pourcentages de retard et d'annulation de part et d'autre de la
+  médiane de chaque variable météo (5.2.4).
 
 Il fournit aussi ``charger_base`` et ``VARIABLES_METEO``, réutilisés par
 ``tests_correlation_jointure`` (partie 6).
@@ -193,16 +194,23 @@ def comparaison_depart_arrivee(df_valides):
     return pd.DataFrame(resultats).round(6)
 
 
-def comparaison_par_tiers(df_valides):
-    """Calcule les pourcentages pondérés par tiers météo (5.2.4).
+# Libellés des deux groupes formés autour de la médiane (5.2.4).
+GROUPE_BAS = "≤ médiane"
+GROUPE_HAUT = "> médiane"
 
-    Chaque variable est découpée indépendamment en trois quantiles (tiers bas,
-    moyen et haut), sans imposer de seuil météorologique externe. Lorsque
-    beaucoup de valeurs sont identiques, deux bornes coïncident et seuls deux
-    groupes sont formés (bas et haut).
 
-    Retourne deux tables longues (variable, tiers) : pourcentage de retard à
-    l'arrivée et pourcentage d'annulation.
+def comparaison_par_mediane(df_valides):
+    """Calcule les pourcentages pondérés de part et d'autre de la médiane (5.2.4).
+
+    Chaque variable est coupée indépendamment en deux groupes autour de sa
+    médiane, sans imposer de seuil météorologique externe : valeurs
+    inférieures ou égales à la médiane d'un côté, strictement supérieures de
+    l'autre. Les valeurs égales à la médiane rejoignent le groupe bas, si bien
+    que les deux groupes peuvent être de tailles inégales lorsque beaucoup de
+    valeurs sont identiques (par exemple NBJTX30, dont la médiane vaut 0).
+
+    Retourne deux tables longues (variable, groupe) : pourcentage de retard à
+    l'arrivée et pourcentage d'annulation, avec la médiane utilisée.
     """
     retards = []
     annulations = []
@@ -223,19 +231,18 @@ def comparaison_par_tiers(df_valides):
         if sous_base.empty:
             continue
 
-        # Découpage en tiers ; duplicates="drop" fusionne les bornes égales.
-        codes = pd.qcut(sous_base[variable], q=3, labels=False, duplicates="drop")
-        nombre_tiers = codes.nunique()
-        sous_base["tiers"] = codes.map(
-            lambda code:
-                "Tiers bas" if code == 0
-                else "Tiers haut" if code == nombre_tiers - 1
-                else "Tiers moyen"
+        # Coupure à la médiane : le groupe haut est vide seulement si la
+        # médiane égale le maximum (variable quasi constante), cas ignoré.
+        mediane = sous_base[variable].median()
+        if not (sous_base[variable] > mediane).any():
+            continue
+        sous_base["groupe"] = np.where(
+            sous_base[variable] > mediane, GROUPE_HAUT, GROUPE_BAS
         )
 
         # Pourcentages pondérés : rapport des totaux de chaque groupe.
-        groupes = sous_base.groupby("tiers", observed=True).agg(
-            observations=("tiers", "size"),
+        groupes = sous_base.groupby("groupe").agg(
+            observations=("groupe", "size"),
             trains_prevus=("nb_train_prevu", "sum"),
             annulations=("nb_annulation", "sum"),
             circulations=("circulations_effectives", "sum"),
@@ -248,17 +255,19 @@ def comparaison_par_tiers(df_valides):
             100 * groupes["annulations"] / groupes["trains_prevus"]
         )
 
-        for tiers, ligne in groupes.iterrows():
-            retards.append({
+        for groupe, ligne in groupes.iterrows():
+            commun = {
                 "variable": variable,
-                "tiers": tiers,
+                "mediane": mediane,
+                "groupe": groupe,
                 "observations": ligne["observations"],
+            }
+            retards.append({
+                **commun,
                 "pourcentage_retard_arrivee": ligne["pourcentage_retard_arrivee"],
             })
             annulations.append({
-                "variable": variable,
-                "tiers": tiers,
-                "observations": ligne["observations"],
+                **commun,
                 "pourcentage_annulation": ligne["pourcentage_annulation"],
             })
 
@@ -273,7 +282,7 @@ def generer_stats_jointe(input_path="df_sncf_avec_meteo.csv"):
     utilisés dans les sous-parties 5.2.1 à 5.2.4.
     """
     df, df_valides = charger_base(input_path)
-    retards, annulations = comparaison_par_tiers(df_valides)
+    retards, annulations = comparaison_par_mediane(df_valides)
 
     return {
         "data": df,
@@ -281,6 +290,6 @@ def generer_stats_jointe(input_path="df_sncf_avec_meteo.csv"):
         "couverture": couverture_jointure(df, df_valides),
         "profils_liaisons": profils_liaisons(df_valides),
         "ecarts_depart_arrivee": comparaison_depart_arrivee(df_valides),
-        "retards_par_tiers": retards,
-        "annulations_par_tiers": annulations,
+        "retards_par_mediane": retards,
+        "annulations_par_mediane": annulations,
     }
