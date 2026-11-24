@@ -8,6 +8,4 @@ scipy
 geopandas
 s3fs
 ipykernel
-sklearn
-textwrap
 scikit-learn
