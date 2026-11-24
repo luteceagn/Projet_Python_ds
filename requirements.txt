@@ -3,11 +3,9 @@ numpy
 requests
 python-dotenv
 matplotlib
-datetime
-pathlib
 seaborn
 scipy
 geopandas
 s3fs
 ipykernel
-sklearn
+scikit-learn
