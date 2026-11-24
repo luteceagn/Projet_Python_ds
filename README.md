@@ -204,4 +204,10 @@ Notre étude comprend plusieurs étapes :
 - Une analyse en composantes principales (ACP) afin d'explorer la structure multidimensionnelle des données.
 
 ## 6- Principaux résultats
-[à compléter]
+Le croisement des données de régularité TGV de la SNCF et des indicateurs météorologiques de Météo-France met en évidence une relation réelle mais contrastée entre conditions climatiques et retards ferroviaires. À travers les différentes approches mobilisées : évolution temporelle annuelle, analyse en composantes principales, corrélations de Spearman et analyses conditionnelles,  un constat central se dégage : les aléas météorologiques n'affectent pas la régularité des trains de manière uniforme.
+
+Les fortes chaleurs et les orages apparaissent comme les phénomènes les plus régulièrement associés à une dégradation de la ponctualité. Leurs trajectoires annuelles suivent globalement la dynamique des retards, et l'analyse conditionnelle confirme qu'une forte exposition s'accompagne d'une hausse marquée des retards, aussi bien au départ qu'à l'arrivée. À l'inverse, le vent fort et le brouillard présentent des comportements plus ambivalents, avec des tendances annuelles souvent opposées aux retards et des effets inversés entre le départ et l'arrivée.
+
+Ces résultats doivent toutefois être interprétés avec prudence. Les coefficients de corrélation demeurent globalement modérés (inférieurs à 0,25 en valeur absolue) et la dispersion des taux de retard reste élevée au sein de chaque sous-groupe, rappelant que la météorologie n'est qu'un facteur explicatif parmi d'autres (charge du trafic, maintenance, incidents techniques ou effets de réseau). De plus, l'agrégation mensuelle et départementale lisse les épisodes météorologiques brefs mais intenses, tout en pouvant masquer des effets saisonniers ou géographiques spécifiques.
+
+Pour prolonger cette étude, il serait pertinent d'affiner la granularité temporelle (à l'échelle journalière) et d'intégrer des variables de contrôle liées à l'exploitation ferroviaire afin d'isoler plus précisément l'impact propre des aléas climatiques, un enjeu d'autant plus stratégique face à la multiplication des épisodes de fortes chaleurs.
