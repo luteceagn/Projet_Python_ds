@@ -1,6 +1,8 @@
-# Analyse de la régularité des TGV et des conditions météorologiques
+# Analyse des relations entre les conditions météorologiques et la régularité des TGV en France
 
 Projet réalisé dans le cadre du cours de Python pour la Data Science à l'ENSAE Paris.
+
+**Réalisé par :**  Lutèce AGGOUNE- Saima BESSROUR- David FLORIGNY
 
 ## 1- Présentation du projet
 
@@ -21,10 +23,10 @@ Ces fonctions sont répertoriées dans les fichiers .py suivants dans l'ordre de
 
 - chargement_sncf.py
 - chargement_gares.py
-- preparation_sncf
+- preparation_sncf.py
 - collecte_meteo.py
 - f_stat_desc.py
-- stat_desc_jointe.py
+- stats_desc_jointe.py
 - tests_correlation_jointure.py
 
 Le dépôt contient aussi le fichier requirements.txt qui recense l'ensemble des modules à installer pour être capable de lancer l'intégralité du projet. Enfin, le dépôt contient un .gitignore pour empêcher certains types de dossiers d'être envoyé sur le dépôt distant.
@@ -198,7 +200,8 @@ Notre étude comprend plusieurs étapes :
 - Une étude des retards, des annulations et de leurs causes déclarées.
 - Une exploration des conditions météorologiques.
 - Une analyse des indicateurs de régularité selon les conditions météorologiques observées.
-- Des analyses de corrélation de Pearson et de Spearman afin d'étudier les associations statistiques entre les variables ferroviaires et météorologiques.
+- Des analyses de corrélation de Spearman afin d'étudier les associations statistiques entre les variables ferroviaires et météorologiques.
+- Une analyse en composantes principales (ACP) afin d'explorer la structure multidimensionnelle des données.
 
 ## 6- Principaux résultats
 [à compléter]
