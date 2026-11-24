@@ -8,14 +8,6 @@ import seaborn as sns
 
 URL_GEO_DEPS_DEFAULT = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson"
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import seaborn as sns
-
-import matplotlib.pyplot as plt
-import pandas as pd
-
-
 def tracer_serie_temporelle_meteo(
     df,
     indicateurs=("anomalie_tx", "anomalie_tn"),
@@ -644,7 +636,7 @@ def tracer_heatmap_meteo(
         cmap = "coolwarm" if indicateur.startswith("anomalie_") else "YlGnBu"
         center = 0 if indicateur.startswith("anomalie_") else None
 
-    # 2. Préparation temporelle et géographique autonome
+    # 2. Préparation temporelle et géographique 
     deps_cles = [str(d).zfill(2) for d in deps]
     df_hm = df.copy()
 

@@ -17,7 +17,8 @@ from pathlib import Path
 
 import pandas as pd
 from scipy.stats import spearmanr
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 from stats_desc_jointe import VARIABLES_METEO, charger_base
 
 
@@ -133,27 +134,43 @@ def redondances_meteo(df_valides, seuil=SEUIL_REDONDANCE):
 
 def sauvegarder_heatmap_spearman(correlation_sncf, dossier):
     """Enregistre la heatmap de la matrice de Spearman SNCF x météo (6.3)."""
-    import matplotlib.pyplot as plt
-    import seaborn as sns
 
     dossier = Path(dossier)
     dossier.mkdir(parents=True, exist_ok=True)
 
-    taille = max(10, len(correlation_sncf.columns) * 0.6)
-    fig, ax = plt.subplots(figsize=(taille, taille * 0.8))
+    n_lignes, n_colonnes = correlation_sncf.shape
+    largeur = max(13, n_colonnes * 0.65)
+    hauteur = max(3.2, n_lignes * 0.95 + 1.8)
+
+    fig, ax = plt.subplots(figsize=(largeur, hauteur))
     sns.heatmap(
         correlation_sncf,
         cmap="coolwarm",
         center=0,
+        square=True,
         annot=True,
         fmt=".2f",
-        annot_kws={"fontsize": 10, "fontweight": "bold"},
+        annot_kws={"fontsize": 8.5, "fontweight": "bold"},
+        cbar_kws={"shrink": 0.85, "pad": 0.02},
         ax=ax,
     )
-    ax.set_title("Corrélation de Spearman : SNCF et météo", fontsize=16, fontweight="bold")
-    ax.tick_params(axis="both", labelsize=10)
+
+    ax.set_title(
+        "Corrélation de Spearman : SNCF et météo",
+        fontsize=14,
+        fontweight="bold",
+        pad=12,
+    )
+    # Légendes perpendiculaires : X en vertical, Y en horizontal
+    ax.tick_params(axis="x", labelsize=9, rotation=90)
+    ax.tick_params(axis="y", labelsize=9.5, rotation=0)
+
     fig.tight_layout()
-    fig.savefig(dossier / "correlation_spearman_heatmap.png", dpi=180)
+    fig.savefig(
+        dossier / "correlation_spearman_heatmap.png",
+        dpi=180,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 
